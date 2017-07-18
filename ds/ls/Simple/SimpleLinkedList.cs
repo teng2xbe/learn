@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ls.Simple
 {
@@ -38,6 +39,46 @@ namespace ls.Simple
             {
                 AppendLast(head, node);
             }
+        }
+
+        public void InsertAfter(SimpleNode refNode, SimpleNode node)
+        {
+            if (head == null)
+            {
+                throw new ArgumentException("List is empty!");
+            }
+            
+            var currentNode = FindNode(head, refNode);
+            if (currentNode == null)
+            {
+                throw new ArgumentException("Cannot find reference node!");
+            }
+            else
+            {
+                node.NextNode = currentNode.NextNode;
+                currentNode.NextNode = node;                
+            }
+
+        }
+
+        public SimpleNode FindNode(SimpleNode current, SimpleNode node)
+        {
+            if (current == null)
+            {
+                return null;
+            }
+
+            if (IsEqual(current, node))
+            {
+                return current;
+            }
+            
+            return FindNode(current.NextNode, node);            
+        }
+
+        public bool IsEqual(SimpleNode node1, SimpleNode node2)
+        {
+            return node1.Data == node2.Data;
         }
 
         private void AppendLast(SimpleNode current, SimpleNode node)
