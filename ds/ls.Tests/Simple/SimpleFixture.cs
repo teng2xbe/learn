@@ -51,5 +51,22 @@ namespace ls.Tests.Simple
             Assert.AreEqual(4, nodeList[2].Data);
             Assert.AreEqual(3, nodeList[3].Data);
         }
+
+        [Test]
+        public void InsertBefore_ShouldInsertBeforeTheReferenceNode()
+        {
+            var ls = new SimpleLinkedList();
+            var refNode = new SimpleNode { Data = 2 };
+            ls.AppendLast(new SimpleNode { Data = 1 });
+            ls.AppendLast(refNode);
+            ls.AppendLast(new SimpleNode { Data = 3 });
+
+            ls.InsertBefore(refNode, new SimpleNode { Data = 4 });
+            var nodeList = ls.GetList();
+            Assert.AreEqual(1, nodeList[0].Data);
+            Assert.AreEqual(4, nodeList[1].Data);
+            Assert.AreEqual(2, nodeList[2].Data);
+            Assert.AreEqual(3, nodeList[3].Data);
+        }
     }
 }

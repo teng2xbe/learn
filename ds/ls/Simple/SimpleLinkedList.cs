@@ -61,6 +61,37 @@ namespace ls.Simple
 
         }
 
+        public void InsertBefore(SimpleNode refNode, SimpleNode node)
+        {
+            if (head == null)
+            {
+                throw new ArgumentException("List is empty!");
+            }
+            var currentNode = FindNode(head, refNode);
+            var parentNode = FindParentNode(head, refNode);
+            if (parentNode == null)
+            {
+                throw new ArgumentException("Cannot find reference node!");
+            }
+            node.NextNode = currentNode;
+            parentNode.NextNode = node;
+        }
+
+        public SimpleNode FindParentNode(SimpleNode current, SimpleNode nodeToFind)
+        {
+            if (current == null)
+            {
+                return null;
+            }
+
+            if (IsEqual(current.NextNode, nodeToFind))
+            {
+                return current;
+            }
+
+            return FindNode(current.NextNode, nodeToFind);
+        }
+
         public SimpleNode FindNode(SimpleNode current, SimpleNode node)
         {
             if (current == null)
