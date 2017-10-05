@@ -9,7 +9,7 @@ namespace bt.Tests
         public void CreateTreeWithInitialHeadNode()
         {
             
-            var bt = new SimpleTree(new SimpleNode {Data = 100});
+            var bt = new SimpleTree(new SimpleNode {Data = 101});
             Assert.AreEqual(100, bt.GetNode(100).Data);
         }
 
