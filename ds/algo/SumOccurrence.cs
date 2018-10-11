@@ -97,3 +97,74 @@
         public int Counter { get; set; }
     }
 }
+
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
+using MetadataExtractor.Formats.FileSystem;
+using Directory = System.IO.Directory;
+
+namespace ConsoleApp2
+{
+    class Program
+    {
+        private static readonly Regex r = new Regex("[^0-9]");
+        private static Dictionary<string, string> _files =  new Dictionary<string, string>();
+        static void Main(string[] args)
+        {
+            GetDirs("C:\\");
+            foreach (var file in _files)
+            {
+                File.Move(file.Key, file.Value);
+            }
+        }
+
+        public static string GetFilename(string path)
+        {
+            var dirs = ImageMetadataReader.ReadMetadata(path);
+            var size = dirs.OfType<FileMetadataDirectory>().FirstOrDefault()?.GetDescription(2);
+            var orig = dirs.OfType<FileMetadataDirectory>().FirstOrDefault()?.GetDescription(1);
+            var model = dirs.OfType<ExifIfd0Directory>().FirstOrDefault()?.GetDescription(272);
+            var taken = dirs.OfType<ExifIfd0Directory>().FirstOrDefault()?.GetDescription(306);
+
+            if (string.IsNullOrWhiteSpace(size) || string.IsNullOrWhiteSpace(model) || string.IsNullOrWhiteSpace(taken) || string.IsNullOrWhiteSpace(orig))
+                return null;
+
+            var newName = $"{r.Replace(taken, "")}_{model}_{r.Replace(size, "")}{Path.GetExtension(path)}";
+            ;
+            return $"{path.Replace(orig, newName)}";
+        }
+
+        public static void GetDirs(string path)
+        {
+            var q = new Queue<string>();
+            q.Enqueue(path);
+
+            while (q.Count > 0)
+            {
+                path = q.Dequeue();
+
+                foreach (var d in Directory.GetDirectories(path))
+                {
+                    q.Enqueue(d);
+                }
+
+                foreach (var directory in Directory.GetDirectories(path))
+                {
+                    foreach (var file in Directory.GetFiles(directory))
+                    {
+                        var name = GetFilename(file);
+                        if (!string.IsNullOrWhiteSpace(name))
+                        {
+                            _files.Add(file, name);
+                        }
+                    }
+                }
+            }
+            
+        }
+    }
+}
