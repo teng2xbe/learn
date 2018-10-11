@@ -98,6 +98,8 @@
     }
 }
 
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -105,6 +107,7 @@ using System.Text.RegularExpressions;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.FileSystem;
+using NLog;
 using Directory = System.IO.Directory;
 
 namespace ConsoleApp2
@@ -113,12 +116,31 @@ namespace ConsoleApp2
     {
         private static readonly Regex r = new Regex("[^0-9]");
         private static Dictionary<string, string> _files =  new Dictionary<string, string>();
+        private static Logger _logger;
         static void Main(string[] args)
         {
+            var config = new NLog.Config.LoggingConfiguration();
+            
+            var info = new NLog.Targets.FileTarget("logfile") { FileName = "info.txt", Layout = "${message}" };
+            var error = new NLog.Targets.FileTarget("logfile") { FileName = "error.txt", Layout = "${message}"};
+            config.AddRule(LogLevel.Info, LogLevel.Info,  info);
+            config.AddRule(LogLevel.Error, LogLevel.Error, error);
+            LogManager.Configuration = config;
+
+            _logger = LogManager.GetCurrentClassLogger();
+
             GetDirs("C:\\");
             foreach (var file in _files)
             {
-                File.Move(file.Key, file.Value);
+                try
+                {
+                    File.Move(file.Key, file.Value);
+                }
+                catch
+                {
+                    _logger.Error($"{file.Key} | {file.Value}");
+                }
+                
             }
         }
 
@@ -160,6 +182,10 @@ namespace ConsoleApp2
                         if (!string.IsNullOrWhiteSpace(name))
                         {
                             _files.Add(file, name);
+                        }
+                        else
+                        {
+                            _logger.Info($"{file}");
                         }
                     }
                 }
